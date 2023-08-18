@@ -10,3 +10,11 @@
     justify-content: center;
     margin: 5rem 0;
 }
+
+.search-container{
+    margin-bottom: 30px;
+}
+
+.search-container h1{
+    margin-bottom: 15px;
+}
