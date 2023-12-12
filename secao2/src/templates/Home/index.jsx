@@ -48,18 +48,17 @@ export const Home = () => {
   return (
     <section className="container">
       <div className="search-container">
-        {searchValue &&
-          searchValue(
-            <>
-              <h1>Search Value: {searchValue}</h1>
-            </>
-          )}
+        {!!searchValue && (
+          <>
+            <h1>Search Value: {searchValue}</h1>
+          </>
+        )}
         <TextInput inputValue={searchValue} handleChange={handleChange} />
       </div>
 
       <Posts posts={filteredPosts} />
 
-      {filteredPosts.length === 0 && <p>Sua retornou nenhum resultado =( </p>}
+      {filteredPosts.length === 0 && <p>Não existem posts =(</p>}
 
       <div className="button-container">
         {!searchValue && (
