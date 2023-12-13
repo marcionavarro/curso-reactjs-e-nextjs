@@ -6,6 +6,7 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import { Home } from ".";
+import userEvent from "@testing-library/user-event";
 
 const handlers = [
   rest.get("*jsonplaceholder.typicode.com*", async (req, res, ctx) => {
@@ -32,6 +33,13 @@ const handlers = [
           body: "body 3",
           url: "img3.jpg",
         },
+        {
+          userId: 4,
+          id: 4,
+          title: "title 4",
+          body: "body 4",
+          url: "img4.jpg",
+        },
       ])
     );
   }),
@@ -51,10 +59,84 @@ describe("<Home />", () => {
   });
 
   it("should render search, posts and load more", async () => {
-    const { debug } = render(<Home />);
+    render(<Home />);
     const noMorePosts = screen.getByText("Não existem posts =(");
 
+    expect.assertions(3);
+
     await waitForElementToBeRemoved(noMorePosts);
-    debug();
+
+    const search = screen.getByPlaceholderText(/type your search/i);
+    expect(search).toBeInTheDocument();
+
+    const images = screen.getAllByRole("img", { name: /title/i });
+    expect(images).toHaveLength(4);
+
+    const button = screen.getByRole("button", { name: /load more posts/i });
+    expect(button).toBeInTheDocument();
+  });
+
+  it("should search for posts", async () => {
+    render(<Home />);
+    const noMorePosts = screen.getByText("Não existem posts =(");
+
+    expect.assertions(10);
+
+    await waitForElementToBeRemoved(noMorePosts);
+
+    const search = screen.getByPlaceholderText(/type your search/i);
+
+    expect(
+      screen.getByRole("heading", { name: "title 1 1" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "title 2 2" })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "title 5 5" })
+    ).not.toBeInTheDocument();
+
+    userEvent.type(search, "title 1");
+    expect(
+      screen.getByRole("heading", { name: "title 1 1" })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "title 2 2" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "title 5 5" })
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.getByRole("heading", { name: "Search Value: title 1" })
+    ).toBeInTheDocument();
+
+    userEvent.clear(search);
+    expect(
+      screen.getByRole("heading", { name: "title 1 1" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "title 2 2" })
+    ).toBeInTheDocument();
+
+    userEvent.type(search, "post does not exist");
+    expect(screen.getByText("Não existem posts =(")).toBeInTheDocument();
+  });
+
+  it("should load more posts", async () => {
+    render(<Home />);
+    const noMorePosts = screen.getByText("Não existem posts =(");
+
+    //expect.assertions(3);
+
+    await waitForElementToBeRemoved(noMorePosts);
+
+    const button = screen.getByRole("button", { name: /load more posts/i });
+
+    userEvent.click(button);
+    expect(
+      screen.getByRole("heading", { name: "title 4 4" })
+    ).toBeInTheDocument();
+    expect(button).toBeDisabled();
   });
 });
