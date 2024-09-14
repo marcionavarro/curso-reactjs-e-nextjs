@@ -29,8 +29,9 @@ export const useCounterContext = () => {
   const context = useContext(Context);
 
   if (typeof context === 'undefined') {
-    const msg = 'You have to use useCounterContext inside <CounterContextProvider />';
-    throw new Error(msg);
+    throw new Error(
+      'You have to use useCounterContext inside <CounterContextProvider />',
+    );
   }
 
   return [...context];
